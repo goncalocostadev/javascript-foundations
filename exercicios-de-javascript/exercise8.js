@@ -12,3 +12,5 @@ function multiplicar(numero1, numero2) {
     return resultado
 }
 
+
+console.log(multiplicar(5, 10))
