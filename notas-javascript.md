@@ -276,10 +276,83 @@ function removerPropriedade(objeto, parametro) {
 
 ---
 
+## 16. `let objectCopy = objeto` (sem spread) — por que é um bug perigoso
+
+Continuação do exercício `removerPropriedade`: o que acontece se se copiar o objeto **sem** usar spread?
+
+```javascript
+function removerPropriedade(objeto, parametro) {
+    let objectCopy = objeto   // NÃO copia — só cria outro nome para o MESMO objeto
+    delete objectCopy[parametro]
+    return objectCopy
+}
+```
+
+**O que realmente acontece:** `objectCopy` e `objeto` passam a apontar para a **mesma posição de memória** (mesma "caixa"), tal como no exemplo `obj1`/`obj2` da secção 14. Não existem dois objetos — só a ilusão de dois, através de dois nomes diferentes.
+
+Quando se faz `delete objectCopy[parametro]`, está-se a apagar a propriedade dessa única caixa partilhada. Como `objeto` (o argumento original recebido pela função) aponta para a mesma caixa, a propriedade também desaparece dele — mesmo fora da função, mesmo que quem chamou a função nunca tenha pedido para alterar o original.
+
+**Por que "parece funcionar" mas está errado:** o `return objectCopy` mostra o resultado certo (o objeto sem a propriedade), por isso é fácil pensar que a função está correta. O bug só se manifesta se, depois de chamar a função, alguém verificar o objeto original e reparar que também perdeu a propriedade — um efeito colateral escondido.
+
+**Exemplo prático do risco:** imaginar uma função que gera uma "versão pública" de um produto sem o campo `custoInterno` (só a equipa interna deveria ver esse campo). Sem o spread, ao gerar a versão pública, o campo `custoInterno` desaparece também do objeto original/interno — perdendo essa informação para sempre em toda a aplicação, não só na versão pública.
+
+**Regra geral:** sempre que uma função recebe um objeto e precisa de o modificar (remover/alterar/adicionar propriedades):
+1. Perguntar: a função deve alterar o objeto original, ou devolver uma versão nova? Se o enunciado pede "cópia" ou "sem alterar o original", é sinal de que é preciso copiar de verdade.
+2. `let x = objeto` **não** copia o conteúdo — só copia a referência (o "endereço" na memória). É preciso `{ ...objeto }` para criar um objeto novo, numa posição de memória diferente.
+
+---
+
+## 17. Exercício `filtrarNumeros` — filtrar elementos de um array por tipo
+
+**Enunciado:** função que recebe um array de elementos e devolve um array só com os números presentes nesse array.
+```javascript
+filtrarNumeros(["Javascript", 1, "3", "Web", 20]) // [1, 20]
+filtrarNumeros(["a", "c"]) // []
+```
+
+**Processo de construção (passo a passo):**
+
+1. A função recebe **um único parâmetro** — o array de entrada (ex: `arr`). Não precisa de mais parâmetros.
+2. Criar uma variável **nova e vazia** para guardar o resultado — não reaproveitar o array recebido nem inicializá-la com `[...arr]` (isso copiava tudo, incluindo os elementos que não são números).
+3. Usar um `for` a percorrer o array **recebido** (`i < arr.length`), não o array de resultado (que começa vazio e teria sempre `length` 0 — loop que nunca corre).
+4. Dentro do loop, `arr[i]` dá acesso ao **valor** guardado na posição `i` (não confundir com `i`, que é só o índice/número da posição).
+5. Testar `typeof arr[i] === "number"` para saber se o elemento atual é um número (nota: `typeof "number"` está errado — isso testa o tipo da string literal `"number"`, que é sempre `"string"`; o que interessa é aplicar `typeof` ao elemento, não à palavra "number").
+6. Se for número, `array.push(arr[i])` — adicionar o **valor**, não o índice `i`.
+7. O `return array` deve ficar **fora** do `for` (depois do `}` que fecha o loop) — senão a função sai logo na primeira iteração, sem processar o resto do array.
+
+**Solução final:**
+```javascript
+function filtrarNumeros(arr) {
+    let array = []
+
+    for (let i = 0; i < arr.length; i++) {
+        if (typeof arr[i] === "number")
+            array.push(arr[i])
+    }
+    return array;
+}
+```
+
+**Nota sobre `"3"` vs `3`:** uma string que "parece" um número (`"3"`, entre aspas) tem `typeof` igual a `"string"`, não `"number"` — por isso não entra no array de resultado. É uma pegadinha comum para testar se se percebeu bem a diferença entre tipos.
+
+**Conexão com métodos de array:** todo este padrão (array vazio + `for` + `if` + `push`) é exatamente o que o método `.filter()` faz internamente. `.filter()` recebe uma função de callback que devolve `true`/`false` para cada elemento, e constrói automaticamente um array novo só com os elementos para os quais a callback devolveu `true`:
+```javascript
+function filtrarNumeros(arr) {
+    return arr.filter(elemento => typeof elemento === "number")
+}
+```
+Ainda por explorar em detalhe: reescrever este exercício com `.filter()` e comparar lado a lado com a versão de `for`.
+
+---
+
 ## Erros recorrentes identificados ao longo da sessão
 
-1. **`return` mal posicionado** — corta a execução da função, tornando código posterior inalcançável ("código morto"). Aconteceu nos exercícios `inverso`, `receiveFirstAndLastElement` e `removerPropriedade`.
+1. **`return` mal posicionado** — corta a execução da função, tornando código posterior inalcançável ("código morto"). Aconteceu nos exercícios `inverso`, `receiveFirstAndLastElement`, `removerPropriedade` e `filtrarNumeros` (return dentro do `for`).
 2. **`if/else` que não cobre todos os casos** — leva a `undefined` silencioso.
 3. **Confundir `+=`/`+` em arrays vs. strings** — `+=` funciona bem em strings e números (concatenação/soma), mas não em arrays (usar `.push()`).
 4. **Confundir atribuição (`=`) com comparação (`===`)**.
 5. **Confundir ordem dos parâmetros** entre o enunciado e os exemplos testados — sempre verificar contra os exemplos dados.
+6. **Copiar objetos sem spread (`let x = objeto` em vez de `{ ...objeto }`)** — não cria uma cópia real, só outro nome para o mesmo objeto na memória; qualquer alteração (ex: `delete`) afeta também o objeto original, um efeito colateral perigoso e silencioso.
+7. **Confundir índice (`i`) com valor (`arr[i]`)** — `i` é só a posição; `arr[i]` é o conteúdo guardado nessa posição. Aconteceu no exercício `filtrarNumeros`, ao tentar `array.push(i)` em vez de `array.push(arr[i])`.
+8. **`typeof` aplicado à palavra errada** — `typeof "number"` testa o tipo da string literal `"number"` (sempre `"string"`), não o tipo do elemento que se quer verificar. O correto é `typeof elemento === "number"`.
+9. **Loop com condição baseada no array errado** — usar `i < arrayVazio.length` (que é sempre `0`) em vez de `i < arrayOriginal.length`, fazendo o loop nunca correr.
