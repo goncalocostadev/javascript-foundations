@@ -345,6 +345,97 @@ Ainda por explorar em detalhe: reescrever este exercício com `.filter()` e comp
 
 ---
 
+## 18. Exercício `objetoParaArray` — de objeto para array de pares [chave, valor] (EM PAUSA)
+
+**Enunciado:** função que recebe um objeto e devolve um array de arrays, em que cada elemento é o par `[chave, valor]` de um atributo do objeto.
+```javascript
+objetoParaArray({ nome: "Maria", profissao: "Desenvolvedora de software" })
+// [["nome", "Maria"], ["profissao", "Desenvolvedora de Software"]]
+```
+
+**Por que o `for` normal não serve diretamente:** o `for` conhecido (`for (let i = 0; i < arr.length; i++)`) depende de um array ter `.length` e índices numéricos (`arr[0]`, `arr[1]`...). Um objeto não tem `.length` nem índices numéricos — as suas "posições" são as próprias chaves (strings).
+
+**`Object.keys(objeto)`:** método que devolve um **array** só com os nomes das propriedades (chaves) de um objeto, como strings:
+```javascript
+Object.keys({ nome: "Maria", profissao: "Desenvolvedora" })
+// ["nome", "profissao"]
+```
+Como isto já é um array normal (com `.length` e índices), pode ser percorrido com o `for` já conhecido.
+
+**Erro comum:** esquecer de guardar o resultado de `Object.keys(obj)` numa variável — chamar a função sozinha, numa linha, sem `let algo = ...`, descarta o array devolvido.
+
+**Ir buscar o valor a partir da chave:** com `keys[i]` (a chave na posição `i`, uma string), usa-se a notação de colchetes já vista na secção 13 para aceder ao valor: `obj[keys[i]]`. Importante não confundir `obj[i]` (tentaria aceder a uma posição numérica, que o objeto não tem) com `obj[keys[i]]` (acede à propriedade cujo **nome** está guardado dentro de `keys[i]`).
+
+**Solução oficial (usa `.map()`, ainda a consolidar):**
+```javascript
+function objetoParaArray(obj) {
+   const chaves = Object.keys(obj)
+   const resultado = chaves.map(chave => [chave, obj[chave]])
+   return resultado
+}
+```
+
+**`.map()` — o que faz:** parecido com `.filter()` (secção 17), percorre um array elemento a elemento, mas em vez de decidir manter/descartar cada elemento, **transforma** cada um numa coisa nova, construindo um array novo com o mesmo número de elementos. Aqui, cada `chave` (string, ex: `"nome"`) é transformada no par `[chave, obj[chave]]`.
+
+**Ponto de confusão identificado (por resolver):** distinguir a variável `chave` (que a cada iteração contém uma string, ex: `"nome"`) de `obj[chave]` (que usa o *conteúdo* dessa variável para ir buscar o valor correspondente em `obj` — equivalente a `obj["nome"]` nessa iteração). `chave` **não é um array**, é uma string isolada a cada chamada — por isso não faz sentido escrever `chave[algumaCoisa]`.
+
+**Arrow function com return implícito:** `chave => [chave, obj[chave]]` é a forma curta de `function(chave) { return [chave, obj[chave]] }`. Quando o corpo de uma arrow function não tem chavetas `{}`, o resultado da expressão é devolvido automaticamente, sem precisar de escrever `return`.
+
+*Nota: este exercício ficou em pausa a meio da explicação de `.map()` — retomar depois, se possível começando só por `obj[chave]` isolado, sem `.map()` à volta, para consolidar essa peça primeiro antes de voltar a juntar tudo.*
+
+---
+
+## 19. Exercício `receberParesDeIndicesPares` — operador módulo (`%`) e duas condições combinadas
+
+**Enunciado:** função que recebe um array de números e devolve um array só com os números que são **pares** e que estão em **índices pares**.
+```javascript
+receberSomenteOsParesDeIndicesPares([1, 2, 3, 4]) // []
+receberSomenteOsParesDeIndicesPares([10, 70, 22, 43]) // [10, 22]
+```
+
+**O que é o resto de uma divisão (intuição sem "matemática"):** pensar em dividir bolachas por pessoas.
+- 10 bolachas por 2 pessoas → 5 cada, não sobra nada → resto **0** → 10 é **par**
+- 7 bolachas por 2 pessoas → 3 cada, sobra 1 → resto **1** → 7 é **ímpar**
+
+**Operador `%` (módulo):** calcula esse resto em JavaScript.
+```javascript
+10 % 2   // 0 (não sobrou nada)
+7 % 2    // 1 (sobrou 1)
+```
+
+**Testar se um número é par:** comparar o resto com `0` usando `===`:
+```javascript
+n % 2 === 0   // true se n for par
+```
+Erro comum: escrever `i % 0` em vez de `i % 2` — o número pelo qual se testa par/ímpar é sempre `2` (dividir por 0 não faz sentido e dá `NaN`); e esquecer o `=== 0`, que é o que transforma o resto (`0` ou `1`) numa condição `true`/`false` de facto.
+
+**Combinar duas condições com `&&`:** o exercício pede que **ambas** as condições sejam verdadeiras ao mesmo tempo (índice par **e** valor par) — usa-se o operador `&&` (E lógico) para juntar as duas expressões:
+```javascript
+i % 2 === 0 && arr[i] % 2 === 0
+```
+
+**Solução final (com a condição extraída para uma variável nomeada, para maior legibilidade):**
+```javascript
+function receberParesDeIndicesPares(arr) {
+    let resultado = []
+
+    for (let i = 0; i < arr.length; i++) {
+        const numeroEIndicePar = i % 2 === 0 && arr[i] % 2 === 0
+
+        if (numeroEIndicePar) {
+            resultado.push(arr[i])
+        }
+    }
+    return resultado
+}
+```
+
+**Erro comum (igual ao do `filtrarNumeros`):** fazer `resultado.push(i)` em vez de `resultado.push(arr[i])` — o nome da função ("índices pares") pode sugerir que se guardam índices, mas o que entra no array final são sempre os **valores**, não as posições; o índice serve só como parte da condição para escolher o elemento.
+
+**Nota tranquilizadora:** exercícios com `%` e "par/ímpar" são uma fase inicial de cursos de programação, feita para treinar lógica com algo fácil de testar — não representam o dia a dia típico de frontend (que lida muito mais com organizar dados, estados, componentes e chamadas a APIs do que com cálculos matemáticos).
+
+---
+
 ## Erros recorrentes identificados ao longo da sessão
 
 1. **`return` mal posicionado** — corta a execução da função, tornando código posterior inalcançável ("código morto"). Aconteceu nos exercícios `inverso`, `receiveFirstAndLastElement`, `removerPropriedade` e `filtrarNumeros` (return dentro do `for`).
@@ -353,6 +444,8 @@ Ainda por explorar em detalhe: reescrever este exercício com `.filter()` e comp
 4. **Confundir atribuição (`=`) com comparação (`===`)**.
 5. **Confundir ordem dos parâmetros** entre o enunciado e os exemplos testados — sempre verificar contra os exemplos dados.
 6. **Copiar objetos sem spread (`let x = objeto` em vez de `{ ...objeto }`)** — não cria uma cópia real, só outro nome para o mesmo objeto na memória; qualquer alteração (ex: `delete`) afeta também o objeto original, um efeito colateral perigoso e silencioso.
-7. **Confundir índice (`i`) com valor (`arr[i]`)** — `i` é só a posição; `arr[i]` é o conteúdo guardado nessa posição. Aconteceu no exercício `filtrarNumeros`, ao tentar `array.push(i)` em vez de `array.push(arr[i])`.
+7. **Confundir índice (`i`) com valor (`arr[i]`)** — `i` é só a posição; `arr[i]` é o conteúdo guardado nessa posição. Aconteceu em `filtrarNumeros` (`array.push(i)` em vez de `array.push(arr[i])`) e em `receberParesDeIndicesPares` (mesmo erro).
 8. **`typeof` aplicado à palavra errada** — `typeof "number"` testa o tipo da string literal `"number"` (sempre `"string"`), não o tipo do elemento que se quer verificar. O correto é `typeof elemento === "number"`.
 9. **Loop com condição baseada no array errado** — usar `i < arrayVazio.length` (que é sempre `0`) em vez de `i < arrayOriginal.length`, fazendo o loop nunca correr.
+10. **Testar par/ímpar com o número errado** — `i % 0` em vez de `i % 2` (dividir por 0 não faz sentido); esquecer o `=== 0` que transforma o resto numa condição verdadeira/falsa.
+11. **Confundir uma variável de iteração (string isolada, ex: `chave` num `.map()`) com um array** — tentar escrever `chave[algumaCoisa]` quando `chave` já é o próprio valor individual (ex: `"nome"`), não uma coleção a indexar.
