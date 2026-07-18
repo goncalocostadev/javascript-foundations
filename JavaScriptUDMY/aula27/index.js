@@ -1,0 +1,13 @@
+// OPERACAO TERNARIA
+
+const pontuacaoUsuario = 1000;
+const nivelUsuario = pontuacaoUsuario >= 1000 ? 'Usuario VIP' : 'Usuario Normal'
+
+
+const corUsuario = 'Pink';
+const corPadrao = corUsuario || 'Preta'
+
+console.log(nivelUsuario, corPadrao)
+
+
+
