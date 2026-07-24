@@ -15,35 +15,28 @@ const clear = document.querySelector('.clear');
 let seconds = 0
 let clock;
 
-function startClock() {
-    clearInterval(clock);
-    timer.style.color = 'black'
-    clock = setInterval(function() {
-        seconds++;
-        timer.innerHTML = getTimeFromSeconds(seconds);
-}, 1000)
-}
 
-function pauseClock() {
-    clearInterval(clock);
-    timer.style.color = 'red'
-}
+document.addEventListener('click', function (event) {
+    const element = event.target;
+    if (element.classList.contains('start')) {
+        clearInterval(clock);
+        timer.style.color = 'black'
+        clock = setInterval(function () {
+            seconds++;
+            timer.innerHTML = getTimeFromSeconds(seconds);
+        }, 1000)
+    }
 
-function clearClock() {
-    clearInterval(clock);
-    seconds = 0
-    timer.innerHTML = getTimeFromSeconds(seconds)
-    timer.style.color = 'black'
-}
+    if (element.classList.contains('clear')) {
+        clearInterval(clock);
+        seconds = 0
+        timer.innerHTML = getTimeFromSeconds(seconds)
+        timer.style.color = 'black'
+    }
 
-start.addEventListener('click', function (event) {
-    startClock();
-});
+    if (element.classList.contains('pause')) {
+        clearInterval(clock);
+        timer.style.color = 'red'
+    }
 
-pause.addEventListener('click', function (event) {
-    pauseClock()
-});
-
-clear.addEventListener('click', function (event) {
-    clearClock()
 })
