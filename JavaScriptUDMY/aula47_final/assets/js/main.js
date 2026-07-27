@@ -7,18 +7,20 @@ const createTask = (task) => {
     li.textContent = task
     tasks.appendChild(li)
     clearInput();
-    deleteTask(li);
+    createDeleteTask(li);
     return;
 }
-
+   
 function clearInput() {
     inputTask.value = "";
 }
 
-function deleteTask(li) {
+function createDeleteTask(li) {
     li.innerText += ' '
     const deleteBtn = document.createElement('button');
     deleteBtn.innerText = 'Delete'
+    deleteBtn.setAttribute('class', 'delete');
+    deleteBtn.setAttribute('title', 'Delete this task');
     li.appendChild(deleteBtn);
 }
 
@@ -32,4 +34,12 @@ inputTask.addEventListener('keypress', function (e) {
 btnTask.addEventListener('click', function (e) {
     if (!inputTask.value) return;
     createTask(inputTask.value)
+})
+
+document.addEventListener('click', function (e) {
+    const element = e.target;
+    
+    if (element.classList.contains('delete')) {
+        element.parentElement.remove();
+    }
 })
