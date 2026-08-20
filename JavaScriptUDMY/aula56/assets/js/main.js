@@ -77,7 +77,7 @@
 
 function Calculadora() {
     this.display = document.querySelector('.display')
-    this.btnClear = document.querySelector('.btn-clear')
+
 
     this.inicia = () => {
         this.clickButtons();
@@ -85,26 +85,23 @@ function Calculadora() {
     }
 
     this.keyEnter = () => {
-        this.display.addEventListener('keyup', e => {
+        this.display.addEventListener('keypress', e => {
             if (e.key === 'Enter') {
                 this.doCount();
             }
         })
     };
 
-    this.clearDisplay = () => {
-        this.display.value = '';
-    };
+    this.clearDisplay = () => this.display.value = '';
 
-    this.deleteBtn = () => {
-        this.display.value = this.display.value.slice(0, -1);
-    };
+    this.deleteBtn = () => this.display.value = this.display.value.slice(0, -1);
+    
 
     this.doCount = () => {
-        let conta = this.display.value
 
         try {
-            conta = eval(conta);
+
+            const conta = eval(this.display.value)
 
             if (!conta) {
                 alert('Conta invalida!')
@@ -123,8 +120,7 @@ function Calculadora() {
             const el = e.target
 
             if (el.classList.contains('btn-num')) {
-                this.btnParaDisplay(el.innerText)
-                console.log(el)
+                this.addNumDisplay(el.innerText)
             }
             if (el.classList.contains('btn-clear')) {
                 this.clearDisplay();
@@ -141,9 +137,11 @@ function Calculadora() {
             })
     }
 
-    this.btnParaDisplay = (value) => {
+    this.addNumDisplay = (value) => {
         this.display.value += value
+        this.display.focus()
     }
+    
 }
 
 const calculadora = new Calculadora()
