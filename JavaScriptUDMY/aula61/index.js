@@ -10,3 +10,4 @@ const nomes = ['Maria', 'Joao', 'Eduardo', 'Gabriel', 'Julia'];
 // Unshift
 nomes.push('Goncalo')
 console.log(nomes);
+
